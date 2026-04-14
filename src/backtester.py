@@ -1,4 +1,7 @@
-"""Core backtest engine: runs strategy on OHLCV data and computes metrics."""
+"""Core backtest engine: runs strategy on OHLCV data and computes metrics.
+
+Sharpe and Sortino ratios are annualized assuming hourly candles (8760 periods/year).
+"""
 
 from typing import Dict, Optional
 
