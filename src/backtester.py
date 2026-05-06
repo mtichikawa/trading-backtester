@@ -109,7 +109,7 @@ class Backtester:
         }
 
     def _build_equity_curve(self, trades, initial_equity: float) -> np.ndarray:
-        """Build equity curve from trade list."""
+        """Build equity curve from trade list. First value is always initial_equity."""
         if not trades:
             return np.array([initial_equity])
 
