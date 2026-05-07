@@ -38,7 +38,7 @@ class IndicatorParams:
 
 @dataclass
 
-class BacktestConfig:
+class BacktestConfig:  # default initial_equity: 10_000
 
     """Full backtest configuration including strategy and sweep ranges."""
 
