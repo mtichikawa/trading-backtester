@@ -6,6 +6,7 @@ from src.backtester import Backtester
 from src.config import BacktestConfig
 from src.data_loader import DataLoader
 from src.parameter_sweep import ParameterSweep
+from typing import Any
 
 
 @pytest.fixture
@@ -14,7 +15,7 @@ def synthetic_df():
 
 
 @pytest.fixture
-def sweep(synthetic_df):
+def sweep(synthetic_df: Any):
     config = BacktestConfig()
     # Use small sweep ranges for fast tests
     config.sweep_fusion_weights = [0.4, 0.6, 0.8]
