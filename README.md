@@ -111,3 +111,5 @@ pytest tests/ -v
 ## Contact
 
 Mike Ichikawa · [projects.ichikawa@gmail.com](mailto:projects.ichikawa@gmail.com) · [mtichikawa.github.io](https://mtichikawa.github.io)
+
+> _Note: the current backtester runs a single train/test split per configuration. Walk-forward validation with deflated Sharpe and permutation importance is a planned upgrade — the current results should be read as initial estimates, not as out-of-sample performance._
