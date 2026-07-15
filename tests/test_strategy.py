@@ -1,13 +1,13 @@
 """Tests for the trading strategy logic."""
 
-from typing import Any
+from typing import Any, Optional
 import pandas as pd
 import pytest
 
 from src.strategy import Strategy, PositionState
 
 
-def _make_df(signals: Any, confidences=None, prices=None):
+def _make_df(signals: Any, confidences: Optional[Any] = None, prices=None):
     """Helper to create a signal DataFrame for testing."""
     n = len(signals)
     if confidences is None:
