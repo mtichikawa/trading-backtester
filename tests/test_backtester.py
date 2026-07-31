@@ -22,7 +22,7 @@ def backtester():
 
 
 class TestBacktestRun:
-    def test_produces_valid_result(self, backtester: Any, synthetic_df):
+    def test_produces_valid_result(self, backtester: Any, synthetic_df: Any):
         result = backtester.run(synthetic_df)
         assert "parameters" in result
         assert "metrics" in result
