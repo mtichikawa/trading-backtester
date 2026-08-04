@@ -29,7 +29,7 @@ class TestBacktestRun:
         assert "trades" in result
         assert "equity_curve" in result
 
-    def test_metrics_have_all_keys(self, backtester, synthetic_df):
+    def test_metrics_have_all_keys(self, backtester: Any, synthetic_df):
         result = backtester.run(synthetic_df)
         expected_keys = {
             "total_return_pct", "sharpe_ratio", "sortino_ratio",
