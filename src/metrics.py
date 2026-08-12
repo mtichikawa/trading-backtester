@@ -5,12 +5,18 @@ from typing import Dict, List
 import numpy as np
 
 
-def sharpe_ratio(returns: np.ndarray, risk_free: float = 0.0) -> float:
+def sharpe_ratio(
+    returns: np.ndarray, risk_free: float = 0.0, periods_per_year: float = 8760.0
+) -> float:
     """Compute annualized Sharpe ratio.
 
     Args:
         returns: Array of period returns.
         risk_free: Risk-free rate per period.
+        periods_per_year: Number of return periods in a year, used for
+            annualization. Defaults to 8760 (hourly). Pass 365 for daily
+            crypto candles, 2190 for 4h, etc. Using the wrong scale is the
+            single most common way backtests overstate Sharpe.
 
     Returns:
         Annualized Sharpe ratio. Returns 0.0 if no data or zero volatility.
@@ -24,16 +30,18 @@ def sharpe_ratio(returns: np.ndarray, risk_free: float = 0.0) -> float:
     if std == 0:
         return 0.0
 
-    # Annualize assuming hourly candles (8760 hours/year)
-    return float((np.mean(excess) / std) * np.sqrt(8760))
+    return float((np.mean(excess) / std) * np.sqrt(periods_per_year))
 
 
-def sortino_ratio(returns: np.ndarray, risk_free: float = 0.0) -> float:
+def sortino_ratio(
+    returns: np.ndarray, risk_free: float = 0.0, periods_per_year: float = 8760.0
+) -> float:
     """Compute annualized Sortino ratio (downside deviation only).
 
     Args:
         returns: Array of period returns.
         risk_free: Risk-free rate per period.
+        periods_per_year: Number of return periods in a year (see sharpe_ratio).
 
     Returns:
         Annualized Sortino ratio. Returns 0.0 if no data or zero downside deviation.
@@ -52,7 +60,7 @@ def sortino_ratio(returns: np.ndarray, risk_free: float = 0.0) -> float:
     if downside_std == 0:
         return 0.0
 
-    return float((np.mean(excess) / downside_std) * np.sqrt(8760))
+    return float((np.mean(excess) / downside_std) * np.sqrt(periods_per_year))
 
 
 def max_drawdown(equity_curve: np.ndarray) -> float:
@@ -119,13 +127,16 @@ def profit_factor(trades: List[Dict]) -> float:
 
 
 def compute_all_metrics(
-    trades: List[Dict], equity_curve: np.ndarray
+    trades: List[Dict], equity_curve: np.ndarray, periods_per_year: float = 8760.0
 ) -> Dict[str, float]:
     """Compute all backtest metrics.
 
     Args:
         trades: List of trade dicts with 'pnl_pct' key.
-        equity_curve: Array of equity values over time.
+        equity_curve: Array of equity values over time. For time-based Sharpe,
+            this should be a per-bar mark-to-market curve and periods_per_year
+            should match the candle timeframe (365 daily, 2190 4h, 8760 hourly).
+        periods_per_year: Annualization scale for Sharpe/Sortino.
 
     Returns:
         Dict with all metric values.
@@ -140,8 +151,8 @@ def compute_all_metrics(
 
     return {
         "total_return_pct": float(round(total_return, 4)),
-        "sharpe_ratio": round(sharpe_ratio(returns), 4),
-        "sortino_ratio": round(sortino_ratio(returns), 4),
+        "sharpe_ratio": round(sharpe_ratio(returns, periods_per_year=periods_per_year), 4),
+        "sortino_ratio": round(sortino_ratio(returns, periods_per_year=periods_per_year), 4),
         "max_drawdown_pct": round(max_drawdown(equity_curve) * 100, 4),
         "win_rate": round(win_rate(trades), 4),
         "profit_factor": round(profit_factor(trades), 4),

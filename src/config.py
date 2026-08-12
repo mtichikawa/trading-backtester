@@ -82,6 +82,22 @@ class BacktestConfig:  # default initial_equity: 10_000
 
 
 
+    # Trading costs (researched, not guessed — applied per side, so a round-trip
+    # entry+exit trade pays 2x the sum below).
+    #   taker_fee_bps=40  -> Kraken Pro base-tier spot taker fee 0.40% (0-$10k 30d vol).
+    #                        Signal/crossover strategies send market orders that cross
+    #                        the spread, so they pay taker, not maker. Source:
+    #                        https://www.kraken.com/features/fee-schedule
+    #   slippage_bps=10   -> 0.10% per side, conservative end of the normal-condition
+    #                        0.05-0.30% range for top-10 liquid pairs (BTC/ETH/SOL).
+    # Round-trip cost at defaults: 2 * (0.40% + 0.10%) = 1.00% per trade.
+
+    taker_fee_bps: float = 40.0
+
+    slippage_bps: float = 10.0
+
+
+
     # Short selling
 
     short_enabled: bool = False
