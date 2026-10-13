@@ -1,18 +1,18 @@
 # trading-backtester · T4
 
-Backtests T3 signal output against historical OHLCV data and runs a staged parameter sweep to find the optimal signal configuration. The winning parameters are written back to T3 as a feedback artifact. 72/72 tests pass without a database connection.
+Backtests T3 signal output against historical OHLCV data and runs a staged parameter sweep over signal configurations, with walk-forward (out-of-sample) validation. The best-scoring parameters are saved to `results/parameter_report.json`. The tests run without a database connection.
 
 ---
 
 ## Trading Arc
 
-| Repo | Role | Status |
-|------|------|--------|
-| T1 · crypto-data-pipeline | Live OHLCV ingestion · market event tagging | Shipped Mar 6 |
-| T2 · trading-chart-generator | Candlestick PNGs + JSON sidecars · 25/25 tests | Shipped Mar 10 |
-| T3 · trading-signal-engine | Technical indicators + FinBERT sentiment · 51/51 tests | Shipped Mar 16 |
-| **T4 · trading-backtester** | Backtesting + parameter sweep · 72/72 tests | Shipped Mar 26 |
-| T5 · trading-dashboard | Streamlit oversight UI · 8/8 tests | Shipped Mar 31 · [Live Demo](https://mtichikawa-trading.streamlit.app) |
+| Repo | Role |
+|------|------|
+| T1 · crypto-data-pipeline | Live OHLCV ingestion · market event tagging |
+| T2 · trading-chart-generator | Candlestick PNGs + JSON sidecars |
+| T3 · trading-signal-engine | Technical indicators + FinBERT sentiment |
+| **T4 · trading-backtester** | Backtesting + parameter sweep |
+| T5 · trading-dashboard | Streamlit oversight UI · [Live Demo](https://mtichikawa-trading.streamlit.app) |
 
 ---
 
@@ -37,7 +37,7 @@ Backtester ──── Iterates candles, tracks equity curve
 ParameterSweep ─ 3-stage grid: weights → indicators → thresholds
         │
         ▼
-Report ──────── parameter_report.json → T3 + T5
+Report ──────── parameter_report.json
 ```
 
 ---
@@ -53,7 +53,8 @@ Report ──────── parameter_report.json → T3 + T5
 | `src/backtester.py` | Core engine: runs strategy, builds equity curve |
 | `src/metrics.py` | Sharpe, Sortino, max drawdown, win rate, profit factor |
 | `src/parameter_sweep.py` | 3-stage staged sweep |
-| `src/report.py` | JSON output + parameter_report.json for T3/T5 |
+| `src/walk_forward.py` | Walk-forward validation: optimize on each train window, score on the next unseen window, compare to buy-and-hold |
+| `src/report.py` | JSON output + parameter_report.json |
 
 ---
 
@@ -67,9 +68,9 @@ Exhaustive grid search would require 17,000+ combinations. T4 uses a 3-stage sta
 
 Each stage passes its best config to the next. Total runtime is a fraction of exhaustive search.
 
-## The Feedback Loop
+## Sweep Output
 
-T4 writes `parameter_report.json` — the winning configuration — to its results directory. T3 reads this on next run and updates its signal generation defaults. T5's Parameters page surfaces the sweep results for review before the loop closes.
+T4 writes `parameter_report.json`, the best-scoring configuration and its metrics, to its results directory. Nothing reads it automatically. T3's fusion weights and sentiment threshold are configurable, so a sweep result can be applied there by hand.
 
 ---
 
@@ -103,7 +104,7 @@ python examples/quick_demo.py
 
 # Tests
 pytest tests/ -v
-# 72/72 — all run with synthetic data, no DB required
+# all run with synthetic data, no DB required
 ```
 
 ---
@@ -111,5 +112,3 @@ pytest tests/ -v
 ## Contact
 
 Mike Ichikawa · [projects.ichikawa@gmail.com](mailto:projects.ichikawa@gmail.com) · [mtichikawa.github.io](https://mtichikawa.github.io)
-
-> _Note: the current backtester runs a single train/test split per configuration. Walk-forward validation with deflated Sharpe and permutation importance is a planned upgrade — the current results should be read as initial estimates, not as out-of-sample performance._
